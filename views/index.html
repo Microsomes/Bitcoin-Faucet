@@ -86,7 +86,7 @@
 <script>
 
     async function updateCurrentBlock(){
-        const res = await fetch('http://localhost:3000/getcurrentblockcount')
+        const res = await fetch('/getcurrentblockcount')
         const data = await res.json()
         document.querySelector('#currentBlock').innerHTML = `#${data.result}`
         document.querySelector('#previousBlock').innerHTML = `#${data.result-1}`
