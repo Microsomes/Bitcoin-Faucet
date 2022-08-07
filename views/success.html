@@ -57,6 +57,10 @@
             <button id="checkExplorer" class="btn bg-green-300 m-2 p-2  rounded-md">Check Now</button>
         </div>
 
+        <div class="bg-black flex items-center justify-center text-white h-32 mt-12 ">
+            TXID: <span id="txid"></span>
+        </div>
+
         <div style="height:1000px" class=" flex  flex-col mt-12 bg-black">
             
             <p class="text-white text-4xl pt-5 roboto">Current Bitcoin Block</p>
@@ -96,6 +100,8 @@
         const data = await response.json();
 
         explorerurl = data.txidurl;
+
+        document.getElementById("txid").innerHTML = data.txid;
 
         return data;
     }

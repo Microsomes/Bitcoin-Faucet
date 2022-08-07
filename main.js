@@ -99,6 +99,18 @@ app.get("/getlastblock",(req,res)=>{
     })    
 });
 
+
+app.get("/getbalance",(req,res)=>{
+    bhelper.getBalance().then((result)=>{
+        res.send(result);
+    }
+    ).catch((err)=>{
+        res.send(err);
+    }
+    )
+})
+
+
 app.get("/success/",(req,res)=>{
     res.sendFile(__dirname + "/views/success.html");
 })

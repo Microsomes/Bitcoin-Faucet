@@ -57,6 +57,14 @@
                 <input  type="submit" class="bg-black rounded-md cursor-pointer hover:bg-red-800  text-yellow-400 p-3" value="get me some free satoshis"/>
             </form>
             <p class="text-sm roboto mt-2">Please note: you will only be able to get free sats once a day</p>
+            <div class="bg-black p-2 mt-12">
+                <p class="text-white">Total Balance In Faecet</p>
+                <p id="balance" class="text-white text-sm font-bold">---</p>
+                <p class="text-white">Faecet Address: </p>
+                <p class="text-white text-sm font-bold">
+                    bc1q7aa46f035qk2k9kuw8vstpfrg4ut57h2ajrslm
+                </p>
+             </div>
         </div>
 
         <div style="height:1000px" class=" flex  flex-col mt-12 bg-black">
@@ -92,12 +100,25 @@
         document.querySelector('#previousBlock').innerHTML = `#${data.result-1}`
     }
 
+    async function getBalance(){
+        const res = await fetch('/getbalance')
+        const data = await res.json()
+        const sats = data.result * 100000000
+        document.querySelector('#balance').innerHTML = `${sats} sats`
+    }
+
     (async()=>{
         
         setInterval(()=>{
             updateCurrentBlock();
         }, 100000)
+
+        setInterval(()=>{
+            getBalance();
+        },10000)
+
         updateCurrentBlock();
+        getBalance();
 
 
     })()

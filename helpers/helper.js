@@ -87,6 +87,18 @@ class BlockchainHelper {
         })
     }
 
+    async getBalance(){
+        return new Promise((resolve,reject)=>{
+            rpc.call('getbalance', [], function (err, res) {
+                if(err){
+                    reject(err);
+                }
+                resolve(res);
+            }
+            )
+        })
+    }
+
 
 }
 
