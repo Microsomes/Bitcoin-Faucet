@@ -19,6 +19,12 @@ resave: false
 }));
 
 
+//static
+app.use(express.static('public'))
+
+//body parser
+
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
