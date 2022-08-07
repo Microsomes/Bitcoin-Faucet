@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oleo+Script+Swash+Caps&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oleo+Script+Swash+Caps&family=Roboto&display=swap" rel="stylesheet">
+    <title>Welcome</title>
+
+    <style>
+
+        body{
+            overflow: hidden;
+        }
+        .roboto{
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .fancy {
+            font-family: 'Oleo Script Swash Caps', cursive;
+        }
+
+    </style>
+
+</head>
+
+<body class="bg-yellow-300 h-screen w-screen">
+
+    <div class="p-12 flex">
+        <nav>
+            <a href="/"><p   class="text-5xl fancy cursor-pointer">Slaveship</p></a>
+            <p   class="text-sm roboto">
+                Sponsored by PussyLulu
+            </p>
+        </nav>
+
+        <div class="flex-grow">
+
+        </div>
+
+        <div class="roboto xs:hidden">
+            Free Satoshis, brought to you by A Japanese Man, enjoy.
+        </div>
+    </div>
+
+    <div class="text-center">
+
+        <div>
+            <p class="fancy text-4xl">Success your coins have been sent</p>
+            <p class="text-sm roboto">Check Transaction on the blockchain</p>
+            <button id="checkExplorer" class="btn bg-green-300 m-2 p-2  rounded-md">Check Now</button>
+        </div>
+
+        <div style="height:1000px" class=" flex  flex-col mt-12 bg-black">
+            
+            <p class="text-white text-4xl pt-5 roboto">Current Bitcoin Block</p>
+            <p class="text-white text-center text-sm roboto">Roughly Every 10 minutes a new block will be mined</p>
+
+            <div class="flex-grow  flex text-white justify-around items-center">
+                <div class="w-96 flex-col animate animate-bounce  h-96 flex items-center justify-center text-black bg-yellow-400">
+                    <p class="roboto">Previous Block</p>
+                    <p id="previousBlock" class="text-4xl">---</p>
+                </div>
+                <div class="w-96 flex-col animate animate-bounce  h-96 flex items-center justify-center text-black bg-yellow-400">
+                    <p class="roboto">Current Block</p>
+
+                    <p id="currentBlock" class="text-4xl">---</p>
+                </div>
+            </div>
+        
+        </div>
+
+    </div>
+    
+</body>
+</html>
+
+<script>
+
+    var explorerurl = null;
+
+    function goToExplorer(){
+        window.open(explorerurl, '_blank');
+    }
+
+    document.getElementById("checkExplorer").addEventListener("click", goToExplorer)
+
+    async function getFreeCoinStatus(){
+        const response = await fetch('/freecoinsstatus');
+        const data = await response.json();
+
+        explorerurl = data.txidurl;
+
+        return data;
+    }
+
+    async function updateCurrentBlock(){
+        const res = await fetch('/getcurrentblockcount')
+        const data = await res.json()
+        document.querySelector('#currentBlock').innerHTML = `#${data.result}`
+        document.querySelector('#previousBlock').innerHTML = `#${data.result-1}`
+    }
+
+    (async()=>{
+        
+        setInterval(()=>{
+            updateCurrentBlock();
+        }, 100000)
+        updateCurrentBlock();
+        getFreeCoinStatus();
+
+
+    })()
+
+</script>
