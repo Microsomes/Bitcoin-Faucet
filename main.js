@@ -105,6 +105,9 @@ app.get("/getlastblock",(req,res)=>{
     })    
 });
 
+app.get("/mining",(req,res)=>{
+    res.sendFile(__dirname + "/views/mining.html");
+})
 
 app.get("/getbalance",(req,res)=>{
     bhelper.getBalance().then((result)=>{

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oleo+Script+Swash+Caps&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oleo+Script+Swash+Caps&family=Roboto&display=swap" rel="stylesheet">
+    
+<script src="https://cdn.socket.io/3.1.3/socket.io.min.js" integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh" crossorigin="anonymous"></script>
+<title>Mining</title>
+
+    <style>
+
+        
+        .roboto{
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .fancy {
+            font-family: 'Oleo Script Swash Caps', cursive;
+        }
+
+    </style>
+
+</head>
+
+<body class="bg-yellow-300 h-screen w-screen">
+
+    <div class="p-12 flex">
+        <nav>
+            <p   class="text-5xl fancy cursor-pointer">Slaveship</p>
+            <p   class="text-sm roboto">
+                Sponsored by PussyLulu
+            </p>
+        </nav>
+
+        <div class="flex-grow">
+
+        </div>
+
+        <div class="roboto xs:hidden">
+            Free Satoshis, brought to you by A Japanese Man, enjoy.
+        </div>
+    </div>
+
+    <div class="text-center">
+
+        <div>
+            
+            <h1 class="fancy text-5xl">Mining a block game</h1>
+            <div class="flex items-center justify-center mt-6 mb-6">
+                <p class="w-96 test-sm roboto">
+                    Your computers CPU or GPU will use its computational power to mine a block and if you find a block before the others you will be rewarded with 
+                    <span class="bg-green-300 rounded-md p-1 cursor-pointer">$0.00001000 BTC</span>
+                </p>
+            </div>
+            <p class="text-sm roboto mt-2">Please note: you will only be able to get free sats once a day</p>
+            <div class="bg-black text-white p-2 mt-12">
+                <p>Server Difficulty: <span id="diff"></span></p>
+                <p>Server Block Data: <span id="blockdata"></span> </p>
+                <p class="text-white">Hash: </p>
+                <p class="text-white">Nonce: </p>
+                <p>Mining Status: mining</p>
+                <button id="startMiningButton" class="btn bg-green-300 mt-2 rounded-md text-black p-1">Start Mining</button>
+              
+             </div>
+        </div>
+
+        <div style="height:1000px" class=" flex  flex-col mt-12 bg-black">
+            
+            <p class="text-white text-4xl pt-5 roboto">Current Bitcoin Block</p>
+            <p class="text-white text-center text-sm roboto">Roughly Every 10 minutes a new block will be mined</p>
+
+            <div class="flex-grow  flex text-white justify-around items-center">
+                <div class="w-96 flex-col animate animate-bounce  h-96 flex items-center justify-center text-black bg-yellow-400">
+                    <p class="roboto">Previous Block</p>
+                    <p id="previousBlock" class="text-4xl">---</p>
+                </div>
+                <div class="w-96 flex-col animate animate-bounce  h-96 flex items-center justify-center text-black bg-yellow-400">
+                    <p class="roboto">Current Block</p>
+
+                    <p id="currentBlock" class="text-4xl">---</p>
+                </div>
+            </div>
+        
+        </div>
+
+    </div>
+    
+</body>
+</html>
+
+<script>
+
+    var isMining = false;
+    var blockData = null;
+    var foundNonce = null;
+    var currentDifficulty = null;
+
+    function hash256(string) {
+         const utf8 = new TextEncoder().encode(string);
+        return crypto.subtle.digest('SHA-256', utf8).then((hashBuffer) => {
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray
+            .map((bytes) => bytes.toString(16).padStart(2, '0'))
+            .join('');
+            return hashHex;
+        });
+    }
+
+
+
+
+    async function runHash(nonce){
+        return new Promise((resolve,reject)=>{
+            setTimeout(async (nonce)=>{
+                console.log(">",nonce)
+                var msg = blockData +":"+"diff:"+currentDifficulty+":"+ nonce;
+
+                //sha256 msg
+                var hashMsg = await hash256(msg);
+
+                //check if hash starts with two zeros
+                if(hashMsg.startsWith("0"* currentDifficulty)){
+                    console.log("found nonce",nonce)
+                    foundNonce = nonce;
+                    resolve({
+                        data: msg,
+                        hash: hashMsg,
+                        nonce: nonce
+                    });
+                 }else{
+                    resolve(0);
+                 }
+             },100,nonce)
+        })
+    }
+
+    async function startMiningProcess(difficulty,data){
+        document.querySelector("#blockdata").innerHTML = data;
+
+        for(var i=0;i<300; i++){
+           var result = await runHash(i)
+            if(result != 0){
+                alert("found nonce:"+ result.nonce);
+                console.log(result)
+                break;
+            }
+        }
+
+    }
+
+    //connect to socket io
+    const socket = new WebSocket("ws://localhost:3001");
+
+    socket.onmessage = function(event) {
+        var msg = JSON.parse(event.data);
+        
+        if(msg.type == "difficulty"){
+           console.log(msg.data)
+           document.querySelector("#diff").innerHTML = msg.data
+         }
+
+        if(msg.type == "miningStarted"){
+            isMining = true;
+            startMiningProcess(msg.difficulty,msg.data);
+            blockData = msg.data;
+            currentDifficulty = msg.difficulty;
+        }
+
+        console.log(msg);
+
+    };
+
+
+
+    function startMining(){
+        var bitcoinaddress = prompt("Please enter your bitcoin address")
+
+        if(bitcoinaddress == null || bitcoinaddress == ""){
+            alert("Please enter a valid bitcoin address")
+            return
+        }
+
+         socket.send(JSON.stringify({
+            type: "startMining",
+            data: bitcoinaddress
+         }));
+    }
+    
+    document.querySelector("#startMiningButton").addEventListener("click", startMining)
+
+    async function updateCurrentBlock(){
+        const res = await fetch('/getcurrentblockcount')
+        const data = await res.json()
+        document.querySelector('#currentBlock').innerHTML = `#${data.result}`
+        document.querySelector('#previousBlock').innerHTML = `#${data.result-1}`
+    }
+
+    
+    (async()=>{
+       
+
+        setInterval(()=>{
+            updateCurrentBlock();
+        }, 100000)
+
+        updateCurrentBlock();
+ 
+
+    })()
+
+</script>
