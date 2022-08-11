@@ -14,6 +14,7 @@
   "dependencies": {
     "bip32": "^3.0.1",
     "bip39": "^3.0.4",
+    "bitcoin-address-generator": "^1.0.2",
     "bitcoin-address-validation": "^2.2.1",
     "bitcoind-rpc": "^0.9.1",
     "bitcore-insight": "^1.0.1",

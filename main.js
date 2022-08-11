@@ -2,11 +2,14 @@ const express = require("express")
 const dotenv = require("dotenv")
 const cors = require("cors");
 
+const Bitcoin = require('bitcoin-address-generator');
 const bodyParser = require('body-parser');
 
 const app = express();
 
 const oneDay = 1000 * 60 * 60 * 24;
+
+
 
 const sessions = require("express-session");
 
@@ -69,6 +72,15 @@ app.post("/freecoins",(req,res)=>{
  })
 
 
+ app.get("/generatewallet",(req,res)=>{
+    Bitcoin.createWalletAddress(response => {
+        console.log(response);
+        res.json({
+             p: response.key,
+             address: response.address
+        })
+    }); 
+ })
 
  app.get("/freecoinsstatus",(req,res)=>{
     if(req.session.isSent){
