@@ -43,8 +43,33 @@ const bhelper = new BlockchainHelper();
 
 var validateBitcoinAddress = require('bitcoin-address-validation');
 
+//maintains a list of ip addresses who have already claimed funds
+var listOfIps = [];
+
+setInterval(()=>{
+    //clear list of ips
+    listOfIps = []; 
+},//1 day
+1000*60*60*24)
+
+
 app.post("/freecoins",(req,res)=>{
+
+    //prevent people from spamming
+    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+    //check if ip is in list
+    if(listOfIps.includes(ip)){
+        res.send("You have already claimed your free coins");
+        return;
+    }
+    
+    //add ip to list
+    listOfIps.push(ip);
+
     const address = req.body.bitcoinaddress;
+
+    //validate the bitcoin address provided is correct
     const isValid = validateBitcoinAddress.validate(address);
 
     if(req.session.isSent){
@@ -55,6 +80,7 @@ app.post("/freecoins",(req,res)=>{
     if(!isValid){
         res.send("Invalid Bitcoin Address, Please enter a valid address");
     }else{
+        //send satoshis to address
         bhelper.sendSatoshis(address,1000).then((result)=>{
             var url = `https://www.blockchain.com/btc/tx/${result.result}`;
             
