@@ -95,6 +95,11 @@ app.post("/freecoins",(req,res)=>{
     }
  })
 
+
+ app.get("/headers",(req,res)=>{
+    //return request header
+    res.json(req.headers);
+ })
 app.get("/getcurrentblockcount",(req,res)=>{
     bhelper.getCurrentBlockHeight().then((result)=>{
         res.send(result);

@@ -19,7 +19,7 @@ function FreeCoins() {
 
     const generatePrivateKey = () => {
 
-        fetch("http://localhost:3000/generatewallet")
+        fetch("https://slaveshipffaecet.herokuapp.com/generatewallet")
             .then(res => res.json())
             .then(data => {
                 console.log(data);
